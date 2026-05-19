@@ -22,11 +22,11 @@ namespace Utilities.Configuration
             return new GetConfigurationResponse
             {
                 Found = result != null,
-                Value = result ?? string.Empty,
+                Value = result,
             };
         }
 
-        public string GetConfigurationValue(string key, ConfigurationStore configurationStore = ConfigurationStore.Environment)
+        public string? GetConfigurationValue(string key, ConfigurationStore configurationStore = ConfigurationStore.Environment)
         {
             var configResponse = GetConfiguration(
                 new GetConfigurationRequest
@@ -37,7 +37,7 @@ namespace Utilities.Configuration
             return configResponse.Value;
         }
 
-        private static string GetValueFromConfigurationStore(string key, ConfigurationStore configurationStore)
+        private static string? GetValueFromConfigurationStore(string key, ConfigurationStore configurationStore)
         {
             switch (configurationStore)
             {

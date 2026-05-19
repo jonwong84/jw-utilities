@@ -45,7 +45,7 @@ namespace Utilities.Configuration.Test.EnvironmentalVariables
 
             // Assert
             result.Found.ShouldBeFalse();
-            result.Value.ShouldBeEmpty();
+            result.Value.ShouldBeNull();
         }
 
         [Fact]
@@ -68,7 +68,8 @@ namespace Utilities.Configuration.Test.EnvironmentalVariables
         public void TestGetEnvironmentVariable_BadRequest()
         {
             var configurationUtility = new ConfigurationUtility();
-            Assert.Throws<ArgumentNullException>(() => configurationUtility.GetConfiguration(null));
+            // Fix CS8625: allow passing null to a non-nullable parameter by using the null-forgiving operator.
+            Assert.Throws<ArgumentNullException>(() => configurationUtility.GetConfiguration(null!));
         }
     }
 }
