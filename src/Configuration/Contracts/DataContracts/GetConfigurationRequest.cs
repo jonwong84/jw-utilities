@@ -12,6 +12,6 @@
 
         public ConfigurationStore ConfigurationStore { get; set; }
 
-        public Func<string, string> ExternalConfigurationStore { get; set; }
+        public Func<string, string>? ExternalConfigurationStore { get; set; }
     }
 }
