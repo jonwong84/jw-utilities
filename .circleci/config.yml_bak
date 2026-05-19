@@ -1,0 +1,94 @@
+version: 2.1
+
+executors:
+  ci:
+    docker:
+      - image: artnetworldwide/automation-dockerimage-ci:5.1.0
+        auth:
+          username: $DOCKER_USER_RO
+          password: $DOCKER_PASSWORD_RO
+
+commands:
+  authenticate_with_nuget_feed:
+    description: "Authenticate with the private NuGet feed"
+    steps:
+      - run:
+          name: Setup NuGet feed authentication
+          command: |
+            cicd_tools auth nuget \
+              --name ArtnetFeedGitHub \
+              --url "$NUGET_FEED_URL_GITHUB" \
+              --username "$NUGET_FEED_USER_GITHUB" \
+              --password "$NUGET_FEED_USER_PASSWORD_GITHUB"
+  setup_cicd_tools:
+    description: "Download and install Python package: cicd_tools"
+    parameters:
+      version:
+        type: string
+        default: "6.3.6"
+    steps:
+      - restore_cache:
+          keys:
+            - v2-cicd_tools-cache-<< parameters.version >>
+      - run:
+          name: setup cicd_tools
+          command: |
+            pip install --user --cache-dir /pip_cache/cicd_tools/ \
+              --extra-index-url "$PYPI_FEED_PIP_INDEX_URL" \
+              cicd_tools==<< parameters.version >>
+      - save_cache:
+          name: save python package cache for cicd_tools
+          key: v2-cicd_tools-cache-<< parameters.version >>
+          paths:
+            - /pip_cache/cicd_tools/
+
+jobs:
+  run_tests:
+    executor: ci
+    steps:
+      - checkout
+      - setup_cicd_tools
+      - authenticate_with_nuget_feed
+      - run:
+          name: set version number and tag, if master
+          command: cicd_tools version set dotnet
+      - run:
+          name: .NET core build
+          command: |
+            cicd_tools build dotnet -o "output/build-release"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+      - run:
+          name: Run all tests
+          shell: /bin/dash
+          command: cicd_tools test dotnet -o "output/test-results"
+      - store_test_results:
+          path: output/test-results
+  publish:
+    executor: ci
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_cicd_tools
+      - authenticate_with_nuget_feed
+      - run:
+          name: Push all packed library packages to NuGET
+          command: |
+            cicd_tools publish dotnet --always-publish -o "output/nuget-artifacts" \
+              --api-key "$NUGET_FEED_USER_PASSWORD_GITHUB" \
+              --repository_url "ArtnetFeedGitHub"
+      - store_artifacts:
+          path: output/nuget-artifacts
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - run_tests:
+          context: org-global-v2
+      - publish:
+          context: org-global-v2
+          requires:
+            - run_tests

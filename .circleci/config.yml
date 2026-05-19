@@ -1,0 +1,167 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:8.0
+    steps:
+      - checkout
+      - run:
+          name: Restore dependencies
+          command: |
+            dotnet restore "src/Configuration/Implementation/Utilities.Configuration.csproj"
+      - run:
+          name: Build
+          command: |
+            dotnet build "src/Configuration/Implementation/Utilities.Configuration.csproj" \
+              --configuration Release \
+              --no-restore
+      - run:
+          name: Run tests
+          command: |
+            dotnet test "src/Configuration/Test/Utilities.Configuration.Test.csproj" \
+              --configuration Release \
+              --no-restore \
+              --verbosity detailed \
+              --logger "trx;LogFileName=test-results.trx" \
+              --results-directory ./test-results
+      - store_test_results:
+          path: ./test-results
+
+  sonar-scan:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:8.0
+    steps:
+      - checkout
+      - run:
+          name: Install SonarScanner
+          command: |
+            dotnet tool install --global dotnet-sonarscanner
+            export PATH="$PATH:/root/.dotnet/tools"
+            echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
+      - run:
+          name: Restore dependencies
+          command: |
+            dotnet restore "src/Configuration/Implementation/Utilities.Configuration.csproj"
+      - run:
+          name: Begin SonarScan
+          command: |
+            PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | grep -oE '[0-9]+$')
+            COVERAGE_REPORT="$PWD/src/Configuration/Test/coverage.opencover.xml"
+            dotnet sonarscanner begin \
+              /k:"jonwong84_utilities" \
+              /o:"jonwong84" \
+              /d:sonar.host.url="https://sonarcloud.io" \
+              /d:sonar.token="$SONAR_TOKEN" \
+              /d:sonar.pullrequest.key="$PR_NUMBER" \
+              /d:sonar.pullrequest.branch="$CIRCLE_BRANCH" \
+              /d:sonar.pullrequest.base="main" \
+              /d:sonar.cs.opencover.reportsPaths="$COVERAGE_REPORT" \
+              /d:sonar.tests="src/Configuration/Test" \
+              /d:sonar.test.inclusions="src/Configuration/Test/**/*.cs"
+      - run:
+          name: Build
+          command: |
+            dotnet build "src/Configuration/Implementation/Utilities.Configuration.csproj" \
+              --configuration Release \
+              --no-restore
+      - run:
+          name: Restore test dependencies
+          command: |
+            dotnet restore "src/Configuration/Test/Utilities.Configuration.Test.csproj"
+      - run:
+          name: Run tests with coverage
+          command: |
+            dotnet test "src/Configuration/Test/Utilities.Configuration.Test.csproj" \
+              --configuration Release \
+              --no-restore \
+              /p:CollectCoverage=true \
+              /p:CoverletOutputFormat=opencover \
+              /p:CoverletOutput=./coverage.opencover.xml
+      - run:
+          name: End SonarScan
+          command: |
+            dotnet sonarscanner end \
+              /d:sonar.token="$SONAR_TOKEN"
+
+  publish:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:8.0
+    steps:
+      - checkout
+      - run:
+          name: Install Node.js and changelog-parser
+          command: |
+            apt-get update && apt-get install -y nodejs npm
+            npm install -g changelog-parser
+      - run:
+          name: Resolve package version
+          command: |
+            BASE_VERSION=$(changelog-parser CHANGELOG.md | \
+              node -e "const d=require('fs').readFileSync('/dev/stdin','utf8'); \
+                const releases=JSON.parse(d).versions.filter(v=>v.version); \
+                console.log(releases[0].version);")
+
+            if [ "$CIRCLE_BRANCH" = "main" ]; then
+              PACKAGE_VERSION="$BASE_VERSION"
+            else
+              DATETIME=$(date -u +"%Y%m%d%H%M%S")
+              PACKAGE_VERSION="${BASE_VERSION}-beta.${DATETIME}"
+            fi
+
+            echo "Resolved version: $PACKAGE_VERSION"
+            echo "export PACKAGE_VERSION='$PACKAGE_VERSION'" >> $BASH_ENV
+      - run:
+          name: Register GitHub Packages source
+          command: |
+            dotnet nuget add source "https://nuget.pkg.github.com/jonwong84/index.json" \
+              --name "github" \
+              --username "jonwong84" \
+              --password "$GITHUB_TOKEN" \
+              --store-password-in-clear-text
+      - run:
+          name: Restore dependencies
+          command: |
+            dotnet restore "src/Configuration/Implementation/Utilities.Configuration.csproj"
+      - run:
+          name: Pack
+          command: |
+            dotnet pack "src/Configuration/Implementation/Utilities.Configuration.csproj" \
+              --configuration Release \
+              --no-restore \
+              /p:Version=$PACKAGE_VERSION \
+              --output ./artifacts
+      - run:
+          name: Publish to GitHub Packages
+          command: |
+            dotnet nuget push ./artifacts/*.nupkg \
+              --api-key "$GITHUB_TOKEN" \
+              --source "github" \
+              --skip-duplicate
+
+workflows:
+  build-test-publish:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              only:
+                - main
+                - /^feature\/.*/
+      - sonar-scan:
+          context: global-v1
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only:
+                - /^feature\/.*/
+      - publish:
+          context: global-v1
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only:
+                - main
+                - /^feature\/.*/

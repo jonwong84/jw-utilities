@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- NuGet package metadata -->
+    <PackageId>Utilities.Configuration</PackageId>
+    <Authors>jonwong84</Authors>
+    <Company>Jonathan Wong</Company>
+    <Description>Configuration utility for .NET 8 projects supporting environment variables, app settings, and connection strings.</Description>
+    <PackageTags>configuration;settings;dotnet;utility</PackageTags>
+    <RepositoryUrl>https://github.com/jonwong84/utilities</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/jonwong84/utilities</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contracts\Utilities.Configuration.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
