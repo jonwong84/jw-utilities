@@ -62,7 +62,7 @@ jobs:
       - run:
           name: Build
           command: |
-            dotnet build "src/Configuration/Implementation/Utilities.Configuration.csproj" \
+            dotnet build "src/Configuration/Implementation/JW.Utilities.Configuration.csproj" \
               --configuration Release \
               --no-restore
       - run:
