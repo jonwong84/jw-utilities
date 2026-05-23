@@ -1,35 +1,35 @@
-﻿using Shouldly;
+﻿using JW.Utilities.Configuration.Contracts.DataContracts;
+using Shouldly;
 using Xunit;
 
-namespace Utilities.Configuration.Test.EnvironmentalVariables
+namespace JW.Utilities.Configuration.Test.EnvironmentalVariables;
+
+public class TestGetEnvironmentVariableValue
 {
-    public class TestGetEnvironmentVariableValue
+    [Fact]
+    public void TestGetEnvironmentVariableValue_Exists()
     {
-        [Fact]
-        public void TestGetEnvironmentVariableValue_Exists()
-        {
-            var key = Guid.NewGuid().ToString();
-            var value = Guid.NewGuid().ToString();
+        var key = Guid.NewGuid().ToString();
+        var value = Guid.NewGuid().ToString();
 
-            // Setup
-            Environment.SetEnvironmentVariable(key, value);
+        // Setup
+        Environment.SetEnvironmentVariable(key, value);
 
-            // Action
-            var configurationUtility = new ConfigurationUtility();
-            var result = configurationUtility.GetConfigurationValue(key, Contracts.DataContracts.ConfigurationStore.Environment);
+        // Action
+        var configurationUtility = new ConfigurationUtility();
+        var result = configurationUtility.GetConfigurationValue(key, ConfigurationStore.Environment);
 
-            // Assert
-            result.ShouldBe(value);
-        }
+        // Assert
+        result.ShouldBe(value);
+    }
 
-        [Fact]
-        public void TestGetEnvironmentVariableValue_NotExists()
-        {
-            var key = Guid.NewGuid().ToString();
+    [Fact]
+    public void TestGetEnvironmentVariableValue_NotExists()
+    {
+        var key = Guid.NewGuid().ToString();
 
-            // Action
-            var configurationUtility = new ConfigurationUtility();
-            Assert.Throws<KeyNotFoundException>(() => configurationUtility.GetConfigurationValue(key, Contracts.DataContracts.ConfigurationStore.Environment));
-        }
+        // Action
+        var configurationUtility = new ConfigurationUtility();
+        Assert.Throws<KeyNotFoundException>(() => configurationUtility.GetConfigurationValue(key, ConfigurationStore.Environment));
     }
 }

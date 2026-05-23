@@ -1,9 +1,8 @@
-﻿using Utilities.Configuration.Contracts.DataContracts;
+﻿using JW.Utilities.Configuration.Contracts.DataContracts;
 
-namespace Utilities.Configuration.Contracts
+namespace JW.Utilities.Configuration.Contracts;
+
+public interface IConfigurationUtility
 {
-    public interface IConfigurationUtility
-    {
-        GetConfigurationResponse GetConfiguration(GetConfigurationRequest request);
-    }
+    GetConfigurationResponse GetConfiguration(GetConfigurationRequest request);
 }

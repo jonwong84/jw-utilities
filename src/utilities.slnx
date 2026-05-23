@@ -1,11 +1,11 @@
 <Solution>
+  <Folder Name="/JW.Utilities.Configuration/">
+    <Project Path="Configuration/Contracts/JW.Utilities.Configuration.Contracts.csproj" />
+    <Project Path="Configuration/Implementation/JW.Utilities.Configuration.csproj" />
+    <Project Path="Configuration/Test/JW.Utilities.Configuration.Test.csproj" />
+  </Folder>
   <Folder Name="/SolutionFiles/">
     <File Path="../CHANGELOG.md" />
     <File Path="../README.md" />
-  </Folder>
-  <Folder Name="/Utilities.Configuration/">
-    <Project Path="Configuration/Contracts/Utilities.Configuration.Contracts.csproj" />
-    <Project Path="Configuration/Implementation/Utilities.Configuration.csproj" />
-    <Project Path="Configuration/Test/Utilities.Configuration.Test.csproj" />
   </Folder>
 </Solution>
