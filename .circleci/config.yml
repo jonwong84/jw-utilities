@@ -9,17 +9,17 @@ jobs:
       - run:
           name: Restore dependencies
           command: |
-            dotnet restore "src/Configuration/Implementation/Utilities.Configuration.csproj"
+            dotnet restore "src/Configuration/Implementation/JW.Utilities.Configuration.csproj"
       - run:
           name: Build
           command: |
-            dotnet build "src/Configuration/Implementation/Utilities.Configuration.csproj" \
+            dotnet build "src/Configuration/Implementation/JW.Utilities.Configuration.csproj" \
               --configuration Release \
               --no-restore
       - run:
           name: Run tests
           command: |
-            dotnet test "src/Configuration/Test/Utilities.Configuration.Test.csproj" \
+            dotnet test "src/Configuration/Test/JW.Utilities.Configuration.Test.csproj" \
               --configuration Release \
               --no-restore \
               --verbosity detailed \
@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Restore dependencies
           command: |
-            dotnet restore "src/Configuration/Implementation/Utilities.Configuration.csproj"
+            dotnet restore "src/Configuration/Implementation/JW.Utilities.Configuration.csproj"
       - run:
           name: Begin SonarScan
           command: |
@@ -68,11 +68,11 @@ jobs:
       - run:
           name: Restore test dependencies
           command: |
-            dotnet restore "src/Configuration/Test/Utilities.Configuration.Test.csproj"
+            dotnet restore "src/Configuration/Test/JW.Utilities.Configuration.Test.csproj"
       - run:
           name: Run tests with coverage
           command: |
-            dotnet test "src/Configuration/Test/Utilities.Configuration.Test.csproj" \
+            dotnet test "src/Configuration/Test/JW.Utilities.Configuration.Test.csproj" \
               --configuration Release \
               --no-restore \
               /p:CollectCoverage=true \
@@ -126,7 +126,7 @@ jobs:
       - run:
           name: Pack
           command: |
-            dotnet pack "src/Configuration/Implementation/Utilities.Configuration.csproj" \
+            dotnet pack "src/Configuration/Implementation/JW.Utilities.Configuration.csproj" \
               --configuration Release \
               --no-restore \
               /p:Version=$PACKAGE_VERSION \
