@@ -10,10 +10,10 @@
     <Company>Jonathan Wong</Company>
     <Description>Custom configuration utility for .NET 8 projects supporting environment variables, app settings, and connection strings.</Description>
     <PackageTags>configuration;settings;dotnet;utility</PackageTags>
-    <RepositoryUrl>https://github.com/jonwong84/utilities</RepositoryUrl>
+    <RepositoryUrl>https://github.com/jonwong84/jw-utilities</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/jonwong84/utilities</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/jonwong84/jw-utilities</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
