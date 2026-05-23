@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contracts\Utilities.Configuration.Contracts.csproj" />
-    <ProjectReference Include="..\Implementation\Utilities.Configuration.csproj" />
+    <ProjectReference Include="..\Contracts\JW.Utilities.Configuration.Contracts.csproj" />
+    <ProjectReference Include="..\Implementation\JW.Utilities.Configuration.csproj" />
   </ItemGroup>
 
 </Project>

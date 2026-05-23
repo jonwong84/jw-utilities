@@ -1,10 +1,9 @@
-﻿namespace Utilities.Configuration.Contracts.DataContracts
+﻿namespace JW.Utilities.Configuration.Contracts.DataContracts;
+
+public enum ConfigurationStore
 {
-    public enum ConfigurationStore
-    {
-        None = 0,
-        Environment,
-        AppSetting,
-        ConnectionString,
-    }
+    None = 0,
+    Environment,
+    AppSetting,
+    ConnectionString,
 }

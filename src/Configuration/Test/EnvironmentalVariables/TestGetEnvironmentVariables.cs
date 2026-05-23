@@ -1,74 +1,74 @@
-﻿using Shouldly;
+﻿using JW.Utilities.Configuration.Contracts.DataContracts;
+using Shouldly;
 using Xunit;
 
-namespace Utilities.Configuration.Test.EnvironmentalVariables
+namespace JW.Utilities.Configuration.Test.EnvironmentalVariables;
+
+public class TestGetEnvironmentVariables
 {
-    public class TestGetEnvironmentVariables
+    [Fact]
+    public void TestGetEnvironmentVariable_Exists()
     {
-        [Fact]
-        public void TestGetEnvironmentVariable_Exists()
+        var key = Guid.NewGuid().ToString();
+        var value = Guid.NewGuid().ToString();
+
+        // Setup
+        System.Environment.SetEnvironmentVariable(key, value);
+
+        // Action
+        var configurationUtility = new ConfigurationUtility();
+        var request = new GetConfigurationRequest
         {
-            var key = Guid.NewGuid().ToString();
-            var value = Guid.NewGuid().ToString();
+            Key = key,
+            ConfigurationStore = ConfigurationStore.Environment,
+        };
+        var result = configurationUtility.GetConfiguration(request);
 
-            // Setup
-            System.Environment.SetEnvironmentVariable(key, value);
+        // Assert
+        result.Found.ShouldBeTrue();
+        result.Value.ShouldBe(value);
+    }
 
-            // Action
-            var configurationUtility = new ConfigurationUtility();
-            var request = new Contracts.DataContracts.GetConfigurationRequest
-            {
-                Key = key,
-                ConfigurationStore = Contracts.DataContracts.ConfigurationStore.Environment,
-            };
-            var result = configurationUtility.GetConfiguration(request);
+    [Fact]
+    public void TestGetEnvironmentVariable_NotExists_ThrowIfNotFoundFalse()
+    {
+        var key = Guid.NewGuid().ToString();
 
-            // Assert
-            result.Found.ShouldBeTrue();
-            result.Value.ShouldBe(value);
-        }
-
-        [Fact]
-        public void TestGetEnvironmentVariable_NotExists_ThrowIfNotFoundFalse()
+        // Action
+        var configurationUtility = new ConfigurationUtility();
+        var request = new GetConfigurationRequest
         {
-            var key = Guid.NewGuid().ToString();
+            Key = key,
+            ThrowIfNotFound = false,
+            ConfigurationStore = ConfigurationStore.Environment,
+        };
+        var result = configurationUtility.GetConfiguration(request);
 
-            // Action
-            var configurationUtility = new ConfigurationUtility();
-            var request = new Contracts.DataContracts.GetConfigurationRequest
-            {
-                Key = key,
-                ThrowIfNotFound = false,
-                ConfigurationStore = Contracts.DataContracts.ConfigurationStore.Environment,
-            };
-            var result = configurationUtility.GetConfiguration(request);
+        // Assert
+        result.Found.ShouldBeFalse();
+        result.Value.ShouldBeNull();
+    }
 
-            // Assert
-            result.Found.ShouldBeFalse();
-            result.Value.ShouldBeNull();
-        }
+    [Fact]
+    public void TestGetEnvironmentVariable_NotExists_ThrowIfNotFoundTrue()
+    {
+        var key = Guid.NewGuid().ToString();
 
-        [Fact]
-        public void TestGetEnvironmentVariable_NotExists_ThrowIfNotFoundTrue()
+        // Action
+        var configurationUtility = new ConfigurationUtility();
+        var request = new GetConfigurationRequest
         {
-            var key = Guid.NewGuid().ToString();
+            Key = key,
+            ThrowIfNotFound = true,
+            ConfigurationStore = ConfigurationStore.Environment,
+        };
+        Assert.Throws<KeyNotFoundException>(() => configurationUtility.GetConfiguration(request));
+    }
 
-            // Action
-            var configurationUtility = new ConfigurationUtility();
-            var request = new Contracts.DataContracts.GetConfigurationRequest
-            {
-                Key = key,
-                ThrowIfNotFound = true,
-                ConfigurationStore = Contracts.DataContracts.ConfigurationStore.Environment,
-            };
-            Assert.Throws<KeyNotFoundException>(() => configurationUtility.GetConfiguration(request));
-        }
-
-        [Fact]
-        public void TestGetEnvironmentVariable_BadRequest()
-        {
-            var configurationUtility = new ConfigurationUtility();
-            Assert.Throws<ArgumentNullException>(() => configurationUtility.GetConfiguration(null!));
-        }
+    [Fact]
+    public void TestGetEnvironmentVariable_BadRequest()
+    {
+        var configurationUtility = new ConfigurationUtility();
+        Assert.Throws<ArgumentNullException>(() => configurationUtility.GetConfiguration(null!));
     }
 }

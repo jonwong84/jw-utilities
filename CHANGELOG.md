@@ -1,4 +1,7 @@
 # Changelog
 
+## [1.0.1] - 2026-06-01
+- PR-2: Updated namespaces and documentation for Configuration Utility.
+
 ## [1.0.0] - 2026-05-18
 - PR-2: Initial release of Configuration Utility.
